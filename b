@@ -1,36 +1,22 @@
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local guiService = game:GetService("GuiService")
+-- Đợi game load xong
+repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 
-warn("✅ Script đã chạy thành công!")
+-- Tạo ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.CoreGui
 
--- Chờ GUI tải xong
-wait(2)
+-- Tạo Button
+local Button = Instance.new("TextButton")
+Button.Parent = ScreenGui
+Button.Size = UDim2.new(0, 200, 0, 50) -- Kích thước nút
+Button.Position = UDim2.new(0.5, -100, 0.5, -25) -- Vị trí nút
+Button.Text = "Nhấn vào đây"
+Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Màu đỏ
+Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Chữ màu trắng
+Button.Font = Enum.Font.SourceSans
+Button.TextSize = 20
 
--- Tìm GUI của menu chính (Cập nhật đường dẫn GUI nếu cần)
-local menuButton = player.PlayerGui:FindFirstChild("MainMenuButton") 
-local afkButton = player.PlayerGui:FindFirstChild("AFKZoneButton")
-local confirmButton = player.PlayerGui:FindFirstChild("ConfirmAFKButton")
-
--- Nhấn vào nút menu
-if menuButton and menuButton:IsA("GuiButton") then
-    menuButton:Activate()
-    wait(1) -- Đợi menu mở ra
-else
-    warn("❌ Không tìm thấy nút Menu!")
-end
-
--- Nhấn vào nút AFK Zone
-if afkButton and afkButton:IsA("GuiButton") then
-    afkButton:Activate()
-    wait(0.5)
-else
-    warn("❌ Không tìm thấy nút AFK Zone!")
-end
-
--- Nhấn xác nhận vào AFK
-if confirmButton and confirmButton:IsA("GuiButton") then
-    confirmButton:Activate()
-else
-    warn("❌ Không tìm thấy nút xác nhận!")
-end
+-- Xử lý sự kiện khi bấm nút
+Button.MouseButton1Click:Connect(function()
+    warn("Bạn đã bấm vào nút!") -- In ra console
+end)
