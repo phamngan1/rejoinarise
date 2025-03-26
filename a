@@ -1,0 +1,71 @@
+local vim = game:GetService("VirtualInputManager")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- ID của game "Arise: Crossover" và khu vực AFK
+local MAIN_GAME_ID = 87039211657390  -- ID của game chính
+local AFK_GAME_ID = 116614712661486        -- 🔴 Thay số này bằng ID của map AFK!
+
+-- Kiểm tra nếu đang ở trong map AFK thì dừng script
+if game.PlaceId == AFK_GAME_ID then
+    print("Đang ở khu vực AFK, dừng script.")
+    return
+end
+
+-- Kiểm tra nếu không ở game chính thì dừng script
+if game.PlaceId ~= MAIN_GAME_ID then
+    print("Không phải Arise: Crossover, dừng script.")
+    return
+end
+
+print("Đang ở trong Arise: Crossover, bắt đầu vào AFK...")
+
+-- Hàm vào khu vực AFK
+local function goToAFK()
+    print("Đang di chuyển vào khu vực AFK...")
+
+    -- Ấn "\" để mở điều hướng giao diện
+    vim:SendKeyEvent(true, Enum.KeyCode.BackSlash, false, game)
+    wait(0.1)
+    vim:SendKeyEvent(false, Enum.KeyCode.BackSlash, false, game)
+    wait(0.2)
+    
+    -- Di chuyển trong menu
+    vim:SendKeyEvent(true, Enum.KeyCode.Right, false, game)
+    wait(0.2)
+    vim:SendKeyEvent(true, Enum.KeyCode.Right, false, game)
+    wait(0.2)
+
+    -- Nhấn Enter để chọn
+    vim:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+    wait(0.1)
+    vim:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+
+    -- Xuống 4 lần
+    for i = 1, 4 do
+        wait(0.2)
+        vim:SendKeyEvent(true, Enum.KeyCode.Down, false, game)
+        wait(0.1)
+        vim:SendKeyEvent(false, Enum.KeyCode.Down, false, game)
+    end
+
+    -- Chọn mục AFK
+    wait(0.2)
+    vim:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+    wait(0.1)
+    vim:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+
+    wait(0.5)
+    vim:SendKeyEvent(true, Enum.KeyCode.Left, false, game)
+    wait(0.1)
+    vim:SendKeyEvent(false, Enum.KeyCode.Left, false, game)
+    wait(0.2)
+
+    -- Xác nhận vào AFK
+    vim:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+    wait(0.1)
+    vim:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+end
+
+-- Chạy vào AFK nếu chưa ở đó
+goToAFK()
