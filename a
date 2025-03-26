@@ -1,2 +1,9 @@
-local placeId = 116614712661486-- Thay bằng ID game của bạn
+local placeId = 116614712661486 -- Thay bằng ID game của bạn
+
+-- Nếu người chơi đã ở trong đúng PlaceId thì dừng script
+if game.PlaceId == placeId then
+    print("Bạn đã ở trong game, không cần teleport.")
+    return
+end
+
 game:GetService("TeleportService"):Teleport(placeId, game.Players.LocalPlayer)
