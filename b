@@ -1,22 +1,27 @@
--- Đợi game load xong
-repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+-- Mày lấy script từ đây là roblox quét chết cụ m đấy
+local TeleportService = game:GetService("TeleportService")
+local Players        = game:GetService("Players")
 
--- Tạo ScreenGui
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = game.CoreGui
+local PLACE_ID = 126884695634066 
+local END_TIME = 111600          
 
--- Tạo Button
-local Button = Instance.new("TextButton")
-Button.Parent = ScreenGui
-Button.Size = UDim2.new(0, 200, 0, 50) -- Kích thước nút
-Button.Position = UDim2.new(0.5, -100, 0.5, -25) -- Vị trí nút
-Button.Text = "Nhấn vào đây"
-Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Màu đỏ
-Button.TextColor3 = Color3.fromRGB(255, 255, 255) -- Chữ màu trắng
-Button.Font = Enum.Font.SourceSans
-Button.TextSize = 20
 
--- Xử lý sự kiện khi bấm nút
-Button.MouseButton1Click:Connect(function()
-    warn("Bạn đã bấm vào nút!") -- In ra console
-end)
+local function shouldTeleport()
+    for _, p in ipairs(Players:GetPlayers()) do
+        local t = p:GetAttribute("SessionTime") or 0
+        if t >= END_TIME then
+            return false
+        end
+    end
+    return true
+end
+
+
+wait(5)
+
+if shouldTeleport() then
+    print("Không có ai đủ 31 tiếng, chuyển sang server khác")
+    TeleportService:Teleport(PLACE_ID, Players.LocalPlayer)
+else
+    print("✅ Có người đã chơi ≥31 tiếng, giữ lại server này.")
+end
