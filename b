@@ -1,27 +1,25 @@
 -- Mày lấy script từ đây là roblox quét chết cụ m đấy
 local TeleportService = game:GetService("TeleportService")
-local Players        = game:GetService("Players")
-
+local Players = game:GetService("Players")
 local PLACE_ID = 126884695634066 
-local END_TIME = 111600          
 
-
-local function shouldTeleport()
-    for _, p in ipairs(Players:GetPlayers()) do
-        local t = p:GetAttribute("SessionTime") or 0
-        if t >= END_TIME then
-            return false
-        end
+local function teleportToRandomServer()  
+    local servers = TeleportService:SearchForGameInstances(PLACE_ID)
+    
+ 
+    if #servers == 0 then
+        print("❌")
+        return
     end
-    return true
+
+ 
+    local randomServer = servers[math.random(1, #servers)]
+    
+
+    TeleportService:TeleportToPlaceInstance(PLACE_ID, randomServer, Players.LocalPlayer)
+    print Đang chuyển sang server ngẫu nhiên")
 end
 
 
-wait(5)
+teleportToRandomServer()
 
-if shouldTeleport() then
-    print("Không có ai đủ 31 tiếng, chuyển sang server khác")
-    TeleportService:Teleport(PLACE_ID, Players.LocalPlayer)
-else
-    print("✅ Có người đã chơi ≥31 tiếng, giữ lại server này.")
-end
