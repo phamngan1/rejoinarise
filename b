@@ -1,6 +1,9 @@
 -- Mày lấy script từ đây là roblox quét chết cụ m đấy
+--được làm bởi thái hòa
+--https://www.facebook.com/profile.php?id=100080017255172
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
+
 local PLACE_ID = 126884695634066
 local TARGET_TIMESTAMP = os.time({
     year = 2025,
@@ -12,15 +15,14 @@ local TARGET_TIMESTAMP = os.time({
     isdst = false
 })
 
-local function hasEarlyPlayer()
+local function shouldTeleport()
     for _, p in ipairs(Players:GetPlayers()) do
         local joinTs = p:GetJoinTimestamp() or 0
         if joinTs <= TARGET_TIMESTAMP then
-            print(("%s join lúc %s"):format(p.Name, os.date("%Y-%m-%d %H:%M:%S", joinTs)))
-            return true
+            return false
         end
     end
-    return false
+    return true
 end
 
 local function teleportToRandomServer()
@@ -31,7 +33,7 @@ local function teleportToRandomServer()
 end
 
 wait(5)
-if not hasEarlyPlayer() then
+
+if shouldTeleport() then
     teleportToRandomServer()
 end
-
