@@ -1,39 +1,34 @@
 -- Mày lấy script từ đây là roblox quét chết cụ m đấy
 --được làm bởi thái hòa
 --https://www.facebook.com/profile.php?id=100080017255172
-local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 
-local PLACE_ID = 126884695634066
-local TARGET_TIMESTAMP = os.time({
-    year = 2025,
-    month = 4,
-    day = 29,
-    hour = 7,
-    min = 30,
-    sec = 0,
-    isdst = false
-})
+local function formatTime(seconds)
+    local h = math.floor(seconds / 3600)
+    local m = math.floor((seconds % 3600) / 60)
+    local s = math.floor(seconds % 60)
+    return string.format("%02d giờ %02d phút %02d giây", h, m, s)
+end
 
-local function shouldTeleport()
+
+local function getLongestSession()
+    local bestPlayer, bestTime = nil, -1
     for _, p in ipairs(Players:GetPlayers()) do
-        local joinTs = p:GetJoinTimestamp() or 0
-        if joinTs <= TARGET_TIMESTAMP then
-            return false
+        local t = p:GetAttribute("SessionTime") or 0
+        if t > bestTime then
+            bestTime = t
+            bestPlayer = p
         end
     end
-    return true
+    return bestPlayer, bestTime
 end
 
-local function teleportToRandomServer()
-    local servers = TeleportService:SearchForGameInstances(PLACE_ID)
-    if #servers == 0 then return end
-    local choice = servers[math.random(1, #servers)]
-    TeleportService:TeleportToPlaceInstance(PLACE_ID, choice, Players.LocalPlayer)
+-- In kết quả
+local plr, t = getLongestSession()
+if plr then
+    print(" Người chơi ở lâu nhất: "..plr.Name)
+    print(" Thời gian session: "..formatTime(t))
+else
+    print("❌ Không có player nào trong server.")
 end
 
-wait(5)
-
-if shouldTeleport() then
-    teleportToRandomServer()
-end
