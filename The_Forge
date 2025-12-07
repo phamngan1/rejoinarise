@@ -1,132 +1,92 @@
---// ====== AUTO FARM MOBS ====== //
+--== AUTO FARM SECTION ==--
 
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local HRP = Character:WaitForChild("HumanoidRootPart")
+local AutoFarm = false
+local SelectedMob = nil
 
--- Path quái trong The Forge
-local MobFolder = workspace:WaitForChild("Enemies")
-
--- Danh sách quái bạn muốn cho vào UI
 local MobList = {
-    "Axe Skeleton",
-    "Blazing Slime",
-    "Blight Pyromancer",
-    "Bomber",
-    "Deathaxe Skeleton",
-    "Elite Deathaxe Skeleton",
-    "Elite Rogue Skeleton",
-    "Reaper",
-    "Skeleton Rogue"
+	"Zombie",
+	"Delver Zombie",
+	"Delivery Zombie"
 }
 
-_G.SelectedMob = nil
-_G.AutoFarmMob = false
-
--- Tạo tab
-local MobTab = Window:AddTab({
-	Title = "Mob Farm",
-	Section = "Main",
-	Icon = "rbxassetid://11963373994"
-})
-
--- Dropdown chọn quái
 Window:AddDropdown({
-	Title = "Chọn quái",
-	Description = "Chọn quái cần farm",
-	Tab = MobTab,
+	Title = "Chọn quái để farm",
+	Description = "Danh sách quái",
+	Tab = Main,
 	Options = MobList,
-	Callback = function(mob)
-		_G.SelectedMob = mob
-		Window:Notify({
-			Title = "Selected",
-			Description = "Đang chọn quái: " .. mob,
-			Duration = 4
-		})
+	Callback = function(v)
+		SelectedMob = v
 	end,
 })
 
--- Auto Equip Weapon (phím 2)
-local function EquipWeapon()
-	local backpack = LocalPlayer.Backpack
-	for _, tool in ipairs(backpack:GetChildren()) do
+Window:AddToggle({
+	Title = "Auto Farm",
+	Description = "Tự động farm quái",
+	Tab = Main,
+	Callback = function(v)
+		AutoFarm = v
+	end,
+})
+
+--== AUTO FARM LOGIC ==--
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local lp = Players.LocalPlayer
+local char = lp.Character or lp.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+
+-- Auto equip weapon
+local function equipWeapon()
+	local tools = lp.Backpack:GetChildren()
+	for _, tool in pairs(tools) do
 		if tool:IsA("Tool") then
-			Character:FindFirstChild("Humanoid"):EquipTool(tool)
-			keypress(0x02) -- phím 2
-			keyrelease(0x02)
-			task.wait(0.1)
-			break
+			tool.Parent = char
+			return
 		end
 	end
 end
 
--- Tìm quái gần nhất cùng tên
-local function GetNearestMob(name)
-	local nearest = nil
+-- Find nearest selected mob
+local function getMob()
+	local target = nil
 	local dist = math.huge
 
-	for _, mob in ipairs(MobFolder:GetChildren()) do
-		if mob:FindFirstChild("HumanoidRootPart") and mob.Name == name then
-			local d = (mob.HumanoidRootPart.Position - HRP.Position).Magnitude
+	for _, mob in ipairs(workspace:GetChildren()) do
+		if mob.Name == SelectedMob and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") then
+			local d = (hrp.Position - mob.HumanoidRootPart.Position).Magnitude
 			if d < dist then
 				dist = d
-				nearest = mob
+				target = mob
 			end
 		end
 	end
 
-	return nearest
+	return target
 end
 
--- Di chuyển tween
-local function TweenTo(pos)
-	local tween = TweenService:Create(
-		HRP,
-		TweenInfo.new((HRP.Position - pos).Magnitude / 40, Enum.EasingStyle.Linear),
-		{ CFrame = CFrame.new(pos) }
-	)
-	tween:Play()
-end
+RunService.RenderStepped:Connect(function()
+	if AutoFarm and SelectedMob then
 
--- Auto rotate vào quái
-local function LookAt(target)
-	HRP.CFrame = CFrame.new(HRP.Position, target.Position)
-end
+		equipWeapon()
 
--- Auto Attack (click chuột trái)
-local function Attack()
-	mouse1click()
-end
+		local mob = getMob()
+		if mob then
+			local mobHRP = mob:FindFirstChild("HumanoidRootPart")
+			if mobHRP then
 
--- Toggle Auto Farm
-Window:AddToggle({
-	Title = "Auto Farm Mob",
-	Description = "Tự động farm quái bạn chọn",
-	Tab = MobTab,
-	Callback = function(state)
-		_G.AutoFarmMob = state
-		if state then
-			EquipWeapon()
-		end
+				-- Teleport xuống dưới chân quái 5 studs
+				hrp.CFrame = mobHRP.CFrame * CFrame.new(0, -3, 5)
 
-		while _G.AutoFarmMob do
-			task.wait(0.1)
+				-- Xoay mặt nhìn thẳng vào quái
+				hrp.CFrame = CFrame.lookAt(hrp.Position, mobHRP.Position)
 
-			if not _G.SelectedMob then continue end
-
-			local mob = GetNearestMob(_G.SelectedMob)
-			if mob and mob:FindFirstChild("HumanoidRootPart") then
-
-				local mobPos = mob.HumanoidRootPart.Position
-				local farmPos = mobPos - Vector3.new(0, 3, 5) -- dưới chân và cách 5 stud
-
-				TweenTo(farmPos)
-				task.wait(0.2)
-				LookAt(mob.HumanoidRootPart)
-				Attack()
+				-- Auto attack (nếu tool có handle / activate)
+				if char:FindFirstChildWhichIsA("Tool") then
+					char:FindFirstChildWhichIsA("Tool"):Activate()
+				end
 			end
 		end
-	end,
-})
+	end
+end)
